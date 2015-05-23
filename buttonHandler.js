@@ -46,14 +46,15 @@ function ButtonHandler(buttonName, checkEveryNumber, useNavBar, optionalIsTrueFu
 
 // return true if we our button is visible 
 ButtonHandler.prototype.isTrue = function(target, eventCount, mainWindow) {
-	this.statsIsTrueInvokedCount++;
-	var result;
-	if (this.optionalIsTrueFunction == null) {
-		var aButton = this.findButton(target);
-        result = aButton.isNotNil() && aButton.validAndVisible();
+    this.statsIsTrueInvokedCount++;
+    var result;
+    if (this.optionalIsTrueFunction == null) {
+        var aButton = this.findButton(target);
+        result = aButton !== undefined && aButton != null && aButton.toString() != "[object UIAElementNil]"  && aButton.isValid() && aButton.isVisible();
     } else {
 	    result = this.optionalIsTrueFunction(target, eventCount, mainWindow);
     }
+    UIALogger.logDebug("ButtonHandler " + this.buttonName + " find result is "+result);
     if (result) {
 	  this.statsIsTrueReturnedTrue++;
     } else {
@@ -82,7 +83,7 @@ ButtonHandler.prototype.isExclusive = function() {
 ButtonHandler.prototype.handle = function(target, mainWindow) {
 	this.statsHandleInvokedCount++;
 	var button = this.findButton(target);
-	if (button.validAndVisible()) {
+	if (button.isValid() && button.isVisible()) {
 		try{
 		    button.tap();
 		} catch(err) {
@@ -108,3 +109,4 @@ ButtonHandler.prototype.logStats = function() {
 		"HandleNotValidAndVisibleCount", this.statsHandleNotValidAndVisibleCount,
 		"HandleErrorCount", this.statsHandleErrorCount].join());
 };
+
