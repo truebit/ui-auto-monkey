@@ -92,7 +92,8 @@ function UIAutoMonkey() {
 			lock: 1,
 			pinchClose: 10,
 			pinchOpen: 10,
-			shake: 1
+			shake: 1,
+			deactivate: 1
 		},
 
 		// Probability that touch events will have these different properties
@@ -206,7 +207,11 @@ UIAutoMonkey.prototype.allEvents = {
 
 	shake: function() {
 		this.target().shake();
-	}
+	},
+
+        deactivate: function() {
+                this.target().deactivateAppForDuration(Math.random() * 3);
+        }
 };
 
 // --- --- --- ---
@@ -254,8 +259,18 @@ UIAutoMonkey.prototype.RELEASE_THE_MONKEY = function() {
 
 		var currentBundleId = this.target().frontMostApp().bundleID();
 		if (currentBundleId !== targetBundleId) {
-			UIALogger.logDebug("Ending monkey because it went outside of the tested app ('" + currentBundleId + "')");
-			break;
+		        if (currentBundleId == "com.apple.springboard"){
+			    UIALogger.logDebug("Trying to back to '"+ targetBundleId +"'... went outside to '" + currentBundleId + "'");
+			    if (Boolean(Math.floor(Math.random() * 2))){
+		            this.target().dragFromToForDuration({x:this.screenWidth(),y:this.screenHeight()},{x:this.screenWidth()/2,y:this.screenHeight()/2},0.5);
+                            }else{
+		            this.target().dragFromToForDuration({x:this.screenWidth(),y:0},{x:0,y:this.screenHeight()},0.5);
+                            }
+                            this.target().delay(2);
+		        }else{
+		            UIALogger.logDebug("Ending monkey because it went outside of the tested app ('" + currentBundleId + "')");
+		            break;
+		        }
 		}
 
 		this.triggerRandomEvent();
